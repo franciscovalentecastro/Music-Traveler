@@ -1,0 +1,36 @@
+#musictraveler-sidebar{
+	float: left;
+	width: 20%;
+	
+}
+
+#musictraveler-sidebar ul{
+	
+	padding: 0;
+	list-style-type: none;
+}
+
+#musictraveler-sidebar li{
+	margin-top: .2em;
+	
+	display:block;
+	width:100%;
+	font-weight:bold;
+	color:#FFFFFF;
+	background-color:#98bf21;
+	text-align:center;
+	padding:4px;
+	text-decoration:none;
+	text-transform:uppercase;
+}
+
+
+#musictraveler-mapcanvas{
+		
+	margin: 1em;
+	background-color: lightblue;
+	height: 31em;
+	width: 77%;
+	float: left;
+	
+}
