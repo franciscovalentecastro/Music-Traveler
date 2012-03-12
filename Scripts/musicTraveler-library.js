@@ -1,52 +1,64 @@
 /* Object Collection*/
-var Map = function(var objHTML,var mapOptions){
+var Map = function (objHTML,mapOptions){
 
 	this.googleMap = new google.maps.Map(objHTML,mapOptions);
 	this.mapOptions = mapOptions;
 	this.markerCollection = new Array(0);
 	this.routeCollection = new Array(0);
 	
-	this.newMarker = function(var position){
-		this.markerCollection.push( new Marker( {  LatLng: position } , { content:"Test" } )  );
-		this.markerCollection[ this.markerCollection.length ].googleMarker.setMap(this.googleMap);	
+	this.newMarker = function(position){
+		this.markerCollection.push( new Marker( {  position: position , map:this.googleMap } , { content:"Test",position:position } )  );
+		
 	}
 	
-	this.newRoute = function(var origin, var destination,var travelMode){
-		this.routeCollection.push( new Route( {  origin:origin, destination:destination, travelMode:travelMode}); );
-		this.routeCollection[ this.routeCollection.length ].directionsRenderer.setMap(this.googleMap);	
+	this.newRoute = function(origin, destination,travelMode){
+		this.routeCollection.push( new Route( {  origin:origin, destination:destination, travelMode:travelMode} ,{map:this.googleMap} ) );
 	}
 				
 }
 
-var Marker = function(var markerOptions,var infoOptions){
+var Marker = function (markerOptions,infoOptions){
+	/* Binding */
+	var objSelf = this;
+		
 	/* Propiedades*/
 	this.googleMarker = 	new google.maps.Marker(markerOptions);
 	this.googleInfoWindow = new google.maps.InfoWindow(infoOptions);
 	
 	this.markerOptions = markerOptions;	
-	this.infoOptions = infoOptions;	
-		
+	this.infoOptions = infoOptions;			
 	
 	/* Metodos*/
-	this.onClick = function(){
-		this.googleInfoWindow.open(markerOptions.map);	
+	this.whenClicked = function(){
+		objSelf.googleInfoWindow.open( objSelf.googleMarker.getMap() );	
 	}		
 	
-	google.maps.event.addListener(this.googleMarker,"click",this.onClick);
+	google.maps.event.addListener(this.googleMarker,"click", this.whenClicked );
 	
 }
 
-var Route = function(var routeOptions){
+
+
+var Route = function(routeOptions,renderOptions){
+	
+	/* Binding */
+	var objSelf = this;
+	
+	/*Properties*/
+		
 	this.directionsService = new google.maps.DirectionsService();
 	
-	this.directionsRenderer = new google.maps.DirectionsRenderer();
+	this.directionsRenderer = new google.maps.DirectionsRenderer(renderOptions);
 	
 	this.routeOptions = routeOptions;
 	
-	this.directionsService(routeOptions,function(var result,var status){
+	/*Methods*/	
+	this.directionsService.route(routeOptions,function(result,status){
 			if (status == google.maps.DirectionsStatus.OK) {
-      		this.directionsRenderer.setDirections(result);
-    		}
+      		objSelf.directionsRenderer.setDirections(result);
+    		}else{
+				alert("Error Retrieving Directions");
+			}    		
 		});	
 }
 
@@ -66,7 +78,7 @@ var Artist = function(){
 }
 
 var Search = function(){
-	this.byName = function()[
+	this.byName = function(){
 	}
 	
 	this.byGenre =	function(){
