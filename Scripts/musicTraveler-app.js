@@ -18,6 +18,15 @@ window.onload= function(){
 			google.maps.TravelMode.WALKING  );		
 		}
 	}	
+	document.getElementById("submit-query").onclick=function(){
+		var srch = new Search();
+		srch.searchArtist(document.getElementById("search").value);		
+	}	
 	
-	
+	var media = new MultimediaPlayer(document.getElementById("musictraveler-multimedia") ); 
+	media.setSource("http://www.youtube.com/embed/adV8-_hgL4g");
 }
+
+var ManageArtist=function(ArtistArray){
+		//alert(ArtistArray);	
+}	

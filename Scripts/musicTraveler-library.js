@@ -1,6 +1,14 @@
 /* Object Collection*/
-var Map = function (objHTML,mapOptions){
 
+var Artist = function( name, origin,genre,songs ){
+	this.name = name;
+	this.origin = origin;
+	this.genre = genre;
+	this.songs = songs;
+}
+
+var Map = function (objHTML,mapOptions){
+	this.objHTML=objHTML;
 	this.googleMap = new google.maps.Map(objHTML,mapOptions);
 	this.mapOptions = mapOptions;
 	this.markerCollection = new Array(0);
@@ -8,7 +16,6 @@ var Map = function (objHTML,mapOptions){
 	
 	this.newMarker = function(position){
 		this.markerCollection.push( new Marker( {  position: position , map:this.googleMap } , { content:"Test",position:position } )  );
-		
 	}
 	
 	this.newRoute = function(origin, destination,travelMode){
@@ -62,41 +69,74 @@ var Route = function(routeOptions,renderOptions){
 		});	
 }
 
-var MultimediaPlayer = function(){
+var Search = function(){
+	/* Binding */
+	var objSelf = this;
+	
+	this.searchArtist = function( srchString , genre , place, resultLimit){
+		var jsonObj =	[{
+				"name":null,
+				"type":"/music/artist",
+				"origin":null,
+				"genre": {"name":null, "optional":true, "limit":1 },
+				"/common/topic/image" : [{ "id":null, "optional":true, "limit":1 }]
+			}];		
+			
+		
+		$.ajax({
+        url: "http://api.freebase.com/api/service/search",
+        data: {query:srchString , type:"/music/artist", mql_output:JSON.stringify(jsonObj)} ,
+        dataType: "jsonp",
+        success: this.resultManager
+    	});	
+	}
+	
+	this.resultManager = function(response){ // Retrives result from Query add formats them for the app
+		
+		if(response.code=="/api/status/ok"){
+			
+			var ArtistResults = [];
+			var jsonRes = response.result;
+			
+			for(ind in jsonRes){
+				tmpArtist = new Artist( 
+					jsonRes[ind].name, 
+					jsonRes[ind].origin , 
+					jsonRes[ind].genre === null ? "undefined" : jsonRes[ind].genre.name ,
+					"No Songs Listed" );				
+							
+				ArtistResults.push(tmpArtist);
+			}					
+			
+			ManageArtist(ArtistResults);			
+		}				
+		
+	}		
+	
+	this.byPopularity = function(resultLimit){
+			
+	}
+		
+}
+
+var MultimediaPlayer = function(objHTML){
+	
 	this.size;
 	this.type;
 	this.title;
 	this.source;
-}
-
-var Artist = function(){
-	this.name;
-	this.origin;
-	this.LatLng;
-	this.genre;
-	this.songs;
-}
-
-var Search = function(){
-	this.byName = function(){
-	}
 	
-	this.byGenre =	function(){
-	}
+	this.objHTML;
 	
-	this.byPopularity = function(){
-	}
-	
-	this.byPlace= function(){
-	}					
-	
-	this.byFiltered = function(){
+	this.setSource = function(multimediaLink){
+		var frameYoutube = $(objHTML).find('iframe');		
+		
+		frameYoutube.attr("src" ,multimediaLink);
+				
+		console.debug(frameYoutube);		
 	}	
 	
-	var Freebase = function(){
-	}
-	
-	var Wikipedia = function(){
-	
-	}		
+	this.hideMe= function(){
+		$(objHTML).hide();	
+	}	
 }
