@@ -113,9 +113,37 @@ var Search = function(){
 		
 	}		
 	
+	this.searchSong = function(title,artist){ // Search Song 
+		$.ajax({
+        url: "http://gdata.youtube.com/feeds/api/videos?callback=?&alt=json&q="+title+" "+artist+
+        "&max-results=1&fields=entry(title,media:group(media:thumbnail,media:content))",
+        data: {  } ,
+        dataType: "jsonp",
+        success: this.songManager
+    	});
+	}	
+	
+	this.songManager = function(response){
+		var result=response.feed.entry[0];
+		var link=result.media$group.media$content[0].url;
+		link = formatYoutubeLink(link);		
+		ManageSong(result.title["$t"],link,"video");
+	}	
+	
 	this.byPopularity = function(resultLimit){
 			
 	}
+	
+	var formatYoutubeLink = function(youtubeLink){
+		
+		var regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#\&\?]*).*/;
+    	var match = youtubeLink.match(regExp);
+    	if (match&&match[7].length==11){
+        return"http://www.youtube.com/embed/" + match[7]+"?enablejsapi=1";
+    	}else{
+			return youtubeLink;
+		}	    	
+	}	
 		
 }
 
@@ -128,7 +156,7 @@ var MultimediaPlayer = function(objHTML){
 	
 	this.objHTML;
 	
-	this.setSource = function(multimediaLink){
+	this.setSource = function(title,multimediaLink){
 		var frameYoutube = $(objHTML).find('iframe');		
 		
 		frameYoutube.attr("src" ,multimediaLink);
@@ -137,6 +165,6 @@ var MultimediaPlayer = function(objHTML){
 	}	
 	
 	this.hideMe= function(){
-		$(objHTML).hide();	
+		$($(objHTML).find('iframe')).hide();	
 	}	
 }
