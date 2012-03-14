@@ -87,11 +87,11 @@ var Search = function(){
         url: "http://api.freebase.com/api/service/search",
         data: {query:srchString , type:"/music/artist", mql_output:JSON.stringify(jsonObj)} ,
         dataType: "jsonp",
-        success: this.resultManager
+        success: this.artistManager
     	});	
 	}
 	
-	this.resultManager = function(response){ // Retrives result from Query add formats them for the app
+	this.artistManager = function(response){ // Retrives result from Query add formats them for the app
 		
 		if(response.code=="/api/status/ok"){
 			
@@ -108,10 +108,14 @@ var Search = function(){
 				ArtistResults.push(tmpArtist);
 			}					
 			
-			ManageArtist(ArtistResults);			
+			//ManageArtist(ArtistResults);			
 		}				
 		
 	}		
+	
+	
+	
+	/*Youtube Song PLayer*/
 	
 	this.searchSong = function(title,artist){ // Search Song 
 		$.ajax({
@@ -123,23 +127,18 @@ var Search = function(){
     	});
 	}	
 	
-	this.songManager = function(response){
+	this.songManager = function(response){ 
 		var result=response.feed.entry[0];
 		var link=result.media$group.media$content[0].url;
-		link = formatYoutubeLink(link);		
-		ManageSong(result.title["$t"],link,"video");
+		link = youtubeVideoId(link);		
+		//ManageSong(result.title["$t"],link,"video");
 	}	
 	
-	this.byPopularity = function(resultLimit){
-			
-	}
-	
-	var formatYoutubeLink = function(youtubeLink){
-		
+	var youtubeVideoId = function(youtubeLink){ // Get Youtube Video Id
 		var regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#\&\?]*).*/;
     	var match = youtubeLink.match(regExp);
     	if (match&&match[7].length==11){
-        return"http://www.youtube.com/embed/" + match[7]+"?enablejsapi=1";
+        return match[7];
     	}else{
 			return youtubeLink;
 		}	    	
@@ -153,18 +152,33 @@ var MultimediaPlayer = function(objHTML){
 	this.type;
 	this.title;
 	this.source;
-	
 	this.objHTML;
 	
-	this.setSource = function(title,multimediaLink){
-		var frameYoutube = $(objHTML).find('iframe');		
-		
-		frameYoutube.attr("src" ,multimediaLink);
-				
-		console.debug(frameYoutube);		
+	this.initPlayer = function(){
+		$("#youtube-player-container").tubeplayer({
+				width: 250, // the width of the player
+				height: 250, // the height of the player
+				allowFullScreen: "true", // true by default, allow user to go full screen
+				initialVideo: "DkoeNLuMbcI", // the video that is loaded into the player
+				preferredQuality: "default",// preferred quality: default, small, medium, large, hd720
+				onPlay: function(id){}, // after the play method is called
+				onPause: function(){}, // after the pause method is called
+				onStop: function(){}, // after the player is stopped
+				onSeek: function(time){}, // after the video has been seeked to a defined point
+				onMute: function(){}, // after the player is muted
+				onUnMute: function(){} // after the player is unmuted
+			});	
 	}	
 	
+	this.setVideo = function(title,artist){
+			
+	}
+	
 	this.hideMe= function(){
-		$($(objHTML).find('iframe')).hide();	
+		$($(objHTML).find('#youtube-player-container')).hide();	
 	}	
+	
+	
+	/*Initialize Object*/
+	this.initPlayer();
 }
