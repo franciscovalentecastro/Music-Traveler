@@ -1,12 +1,10 @@
 $(document).ready( function(){ initialize(); });
+var player;
+var initialize = function(){	
 
-var initialize = function(){
-	man = new DataManager();
-	man.getSong("Malegria","Manu Chao",tes);
+	player = new MusicPlayer( $("#youtube-player-container") );
+	player.newPlaylist("Justice","youtube");
+	
+		
+	player.play(0);
 }
-
-function tes( resArray){
-	alert("Yeah");
-	console.debug(resArray);
-}
-
