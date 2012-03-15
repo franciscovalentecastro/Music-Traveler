@@ -1,15 +1,12 @@
 $(document).ready( function(){ initialize(); });
 
 var initialize = function(){
-	
-	multimediaPlayer = new MultimediaPlayer( $("#musictraveler-multimedia") );
-	//multimediaPlayer.hideMe();
-	
-	//$("#youtube-player-container").tubeplayer("play");
-	var searchBox= new Search();
-	searchBox.searchSong("Mania Cardiaca","Enjambre");
+	man = new DataManager();
+	man.getSong("Malegria","Manu Chao",tes);
 }
 
-var ManageArtist=function(ArtistArray){
-	alert(ArtistArray);	
-}	
+function tes( resArray){
+	alert("Yeah");
+	console.debug(resArray);
+}
+
