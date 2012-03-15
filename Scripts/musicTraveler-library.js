@@ -170,6 +170,8 @@ var MusicPlayer = function(objHTML){
 	this.playlistSongIndex =0 ;    											// PlayList Index
 	this.status = "unloaded";													// Status of Music Player
 	
+	/*Initialize Youtube Player*/	
+	
 	this.youtubePlayer = $(objHTML).tubeplayer({																//Youtube Player
 									width: 250, // the width of the player
 									height: 250, // the height of the player
@@ -190,6 +192,8 @@ var MusicPlayer = function(objHTML){
 									onUnMute: function(){} // after the player is unmuted
 								});	
 	
+	/* newPlaylist : creates a playlist from an artist name*/
+	
 	this.newPlaylist = function(artist,source){						
 		
 		this.status="loading";												//Set Status		
@@ -205,12 +209,14 @@ var MusicPlayer = function(objHTML){
 								
 	}	
 	
+	/* playlistResult : Manages new playlist result*/	
+	
 	this.playlistResult = function(songResultArray){		
 		this.playlist = this.playlist.concat(songResultArray);					
 		this.status="ready";										    		//Set Status	
 	}	
 	
-	
+	/* play : plays current song or plays song with given index*/
 	
 	this.play = function( playlistSongIndex ){
 		
@@ -255,6 +261,8 @@ var MusicPlayer = function(objHTML){
 		}			
 	}	
 	
+	/* pause : pauses if playing*/
+	
 	this.pause = function(){
 		var songObj = this.playlist[ this.playlistSongIndex ];
 		
@@ -273,13 +281,23 @@ var MusicPlayer = function(objHTML){
 		}		
 	}	
 	
+	/* hideVide : hides video*/	
+	
 	this.hideVideo= function(){
 		$(objHTML).hide();	
 	}
 	
-	this.getStatus = function(){
-		return this.status;
-	}				
+}
+
+/*Trip Manager*/
+
+var TripManager = function(initialPosition){
+	this.position = initialPosition;
+	this.speed;
+	this.direction;
+	this.nodeTripCollection = new Array(initialPosition);
+	
+	
 }
 
 
