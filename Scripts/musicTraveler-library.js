@@ -338,7 +338,7 @@ var MusicPlayer = function(objHTML){
 
 /*Trip Manager*/
 
-var TripManager = function(objHTML){
+var TripManager = function(){
 	
 	this.position;																		//	The position in the Trip
 	this.speed;																			// Speed of traveling
@@ -346,7 +346,8 @@ var TripManager = function(objHTML){
 	this.nodeTripCollection = new Array();										// Collection of positions to visit
 	this.nodeTripIndex;																// Index of actual position
 	this.nodeResultCollection = new Array();									// Collection of positions for showing
-	this.objHTML = objHTML;															// Object HTML TO Draw In
+	this.objHTML;																		// Object HTML TO Draw In
+	this.googleMap;																	// Map Object For Rendering
 	
 	/* newTrip : Resets the trip and creates one with the postion given */
 	
@@ -406,29 +407,52 @@ var TripManager = function(objHTML){
 	/* artistResult : Manages the results from searchArtist function*/
 	
 	this.artistResult = function(artistResultArray){
-		nodeResultCollection = new Array();          //Reset Array
+		this.nodeResultCollection = new Array();          		//Reset Array
 		
 		artistResultArray.forEach(function(element,index,array){ 
 			var tempPosition = new Position(
-				element.name+" "+ element.origin,		//Position Name
-				element.latlng.lat(),						//Latitude
-				element.latlng.lng(),						//Longtude
-				element);										//Artist Object
+				element.name+" "+ element.origin,				//Position Name
+				element.latlng !=="undefined" ? 
+					element.latlng.lat() : 
+						element.latlng,								//Latitude
+				
+				element.latlng !=="undefined" ?
+					element.latlng.lng() :
+					element.latlng,									//Longtude
+				element);												//Artist Object
 			
-			nodeResultCollection.push(tempPosition);  //Push Object
+			this.nodeResultCollection.push(tempPosition);   //Push Object
 		},this);		
+	}
+		
+	/* initMap : INitializes or Resets Map Object for rendering */
+	
+	this.initMap = function(objHTML,mapOptions){
+		this.objHTML = objHTML;
+		this.googleMap = new google.maps.Map(objHTML,mapOptions);
 	}	
 	
 	/* renderTrip : Draws in a google.maps.map the trip*/
 	
 	this.renderTrip= function(){
-	
+		this.nodeResultCollection.forEach( function(element,index,array){
+				if( element.latlng!=="undefined" ){
+					element.marker = new google.maps.Marker( { title:element.name , position : element.latlng} );
+					element.marker.setMap(this.googleMap);				
+				}			
+			}.bind(this) );
 	}
 	
 	/* renderResult :  Draws in a google.maps.map the search results */
 	
 	this.renderResult	= function(){
-			
+		
+		this.nodeResultCollection.forEach( function(element,index,array){
+				if( element.latlng!=="undefined" ){
+					element.marker = new google.maps.Marker( { title:element.name , position : element.latlng} );
+					element.marker.setMap(this.googleMap);				
+				}			
+			}.bind(this) );	
 	}	
 }
 
