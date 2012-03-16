@@ -20,6 +20,15 @@ var Song = function(title,artist,description,multimediaLink,sourceType){
 	this.sourceType = sourceType; 								// type "youtube" etc.
 }
 
+/*Position Object*/
+
+var Position = function(name,lat,lng){
+	this.name = name;												   //String
+	this.lat = lat;													//Number
+	this.lng = lng;													//Number
+	this.latlng = new google.maps.LatLng(lat,lng);			//LatLng Object
+}
+
 /*DataManager Object*/
 
 var DataManager = function(){
@@ -119,8 +128,7 @@ var DataManager = function(){
 			for(ind in jsonRes){																	//Loop Create Song Objects From Results
 			
 				var result = jsonRes[ind];
-				
-				var link =   result.media$group.media$content[0].url;
+				var link =  (typeof result.media$group.media$content) == "undefined" ? "undefined" : result.media$group.media$content[0].url;
 				link = youtubeVideoId(link);
 				
 				var songContent = result["content"]["$t"];
@@ -141,6 +149,7 @@ var DataManager = function(){
 
 		}catch(exception){
 			alert(exception);				
+			console.debug(data);
 			console.debug(exception);
 			callbackFunction([]);
 		}
@@ -178,14 +187,14 @@ var MusicPlayer = function(objHTML){
 									allowFullScreen: "true", // true by default, allow user to go full screen
 									preferredQuality: "default",// preferred quality: default, small, medium, large, hd720
 									onPlay: function(id){ 
-										this.status ="playing" 
+										this.status ="playing"; 
 									}.bind(this), // after the play method is called
 									
 									onPause: function(){  
-										this.status ="paused"  
+										this.status ="paused";  
 									}.bind(this) , // after the pause method is called
 									onStop: function(){   
-										this.status ="stoped"  
+										this.status ="stoped";  
 									}.bind(this) , // after the player is stopped
 									onSeek: function(time){}, // after the video has been seeked to a defined point
 									onMute: function(){}, // after the player is muted
@@ -291,12 +300,15 @@ var MusicPlayer = function(objHTML){
 
 /*Trip Manager*/
 
-var TripManager = function(initialPosition){
-	this.position = initialPosition;
+var TripManager = function(){
+	this.position;
 	this.speed;
 	this.direction;
-	this.nodeTripCollection = new Array(initialPosition);
+	this.nodeTripCollection = new Array();
 	
+	/* newTrip : Resets the trip and creates one with the postion given */
+	
+	this
 	
 }
 
