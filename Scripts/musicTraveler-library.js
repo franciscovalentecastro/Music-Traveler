@@ -8,6 +8,17 @@ var Artist = function( name, origin,latlng,genre ){
 	this.origin = origin; 											// String
 	this.latlng = latlng ; 											// LatLng
 	this.genre = genre;												// String
+	
+	if( typeof this.latlng !== "object" && this.latlng !=="undefined"  ){   //Check for latlng if any , if not  ,geocode
+		var geocoderObj = new google.maps.Geocoder();
+		geocoderObj.geocode( { address: this.origin } , 
+		function(result,status){
+			if(status === "OK"){
+				this.latlng = result[0]["geometry"]["location"];
+				this.origin = result[0]["formatted_address"];			
+			}			
+		}.bind(this));
+	}
 }
 
 /*Song Object*/
@@ -22,11 +33,12 @@ var Song = function(title,artist,description,multimediaLink,sourceType){
 
 /*Position Object*/
 
-var Position = function(name,lat,lng){
-	this.name = name;												   //String
-	this.lat = lat;													//Number
-	this.lng = lng;													//Number
-	this.latlng = new google.maps.LatLng(lat,lng);			//LatLng Object
+var Position = function(name,lat,lng,artist){
+	this.name = name;												   				//String
+	this.lat = lat;																	//Number
+	this.lng = lng;																	//Number
+	this.latlng = new google.maps.LatLng(lat,lng);					      //LatLng Object
+	this.artist	= typeof artist !=='undefined' ? artist :"undefined"; //Artist Object
 }
 
 /*DataManager Object*/
@@ -42,7 +54,9 @@ var DataManager = function(){
 			var jsonObj =	[{																				//MQL Query Object 
 					"name":null, 																			// Get Name
 					"type":"/music/artist", 															// Set Type
-					"origin":{"name":null, "optional":true, "limit":1 },          		   // Get Origin
+					"origin":{"name":null,"geolocation": {"latitude":  null,
+        															  "longitude": null }
+								,"optional":true, "limit":1 },          		   				// Get Origin & GeoLocation
 					"genre": {"name":null, "optional":true, "limit":1 },  					// Get Genre
 					"/common/topic/image" : [{ "id":null, "optional":true, "limit":1 }] 	//Get Image
 			}];		
@@ -72,13 +86,33 @@ var DataManager = function(){
 				
 				var ArtistResultArray = [];
 				var jsonRes = data.result;
-			
+				var tmpOrigin;
+				var tmpGeolocation;
+				var originObj;				
+								
 				for(ind in jsonRes){																						// Create Results Array
+					
+					originObj= jsonRes[ind].origin;
+					
+					if( originObj === null	){		//Check Availavility of origin
+						tmpOrigin = "undefined";
+						tmpGeolocation = "undefined";
+					}else{
+						tmpOrigin = originObj.name;
+						if( originObj.geolocation === null){
+							tmpGeolocation = "undefined";
+						}else{
+							tmpGeolocation = new google.maps.LatLng(originObj.geolocation.latitude,
+																			    originObj.geolocation.longitude);
+						}
+					}
+					
 					tmpArtist = new Artist( 
 						jsonRes[ind].name, 																				//Name	
-						jsonRes[ind].origin === null ? "undefined" : jsonRes[ind].origin.name , 		//Origin Place Name
-						"None",																								//Latitude Longitude
-						jsonRes[ind].genre === null ? "undefined" : jsonRes[ind].genre.name           //Genre Name
+						tmpOrigin , 																						//Origin Place Name
+						tmpGeolocation,																					//Latitude Longitude
+						jsonRes[ind].genre === null ? 
+							"undefined" : jsonRes[ind].genre.name           									//Genre Name
 			      );																				
 							
 					ArtistResultArray.push(tmpArtist);
@@ -149,7 +183,6 @@ var DataManager = function(){
 
 		}catch(exception){
 			alert(exception);				
-			console.debug(data);
 			console.debug(exception);
 			callbackFunction([]);
 		}
@@ -229,13 +262,13 @@ var MusicPlayer = function(objHTML){
 	
 	this.play = function( playlistSongIndex ){
 		
-		if(playlistSongIndex == null){                    // Check if parameter was passed
+		if(typeof playlistSongIndex === "undefined"){                    // Check if parameter was passed
 			playlistSongIndex = this.playlistSongIndex;
 		}			
 				
 		if(this.status  == "ready" || this.status  == "paused" || this.status  == "playing" || this.status  == "stoped"){ //Check Player Status
 		
-			if( this.playlist[  playlistSongIndex ] !== null ){	 //Check if song number exists
+			if( typeof this.playlist[  playlistSongIndex ] !== "undefined"  ){	 //Check if song number exists
 				
 				
 				this.playlistSongIndex = playlistSongIndex;
@@ -289,8 +322,13 @@ var MusicPlayer = function(objHTML){
 				break;
 		}		
 	}	
+	/* clearPlaylist : clears playlist*/
 	
-	/* hideVide : hides video*/	
+	this.clearPlaylist = function(){
+		this.playlist = new Array(0);	
+	}
+	
+	/* hideVideo : hides video*/	
 	
 	this.hideVideo= function(){
 		$(objHTML).hide();	
@@ -301,15 +339,96 @@ var MusicPlayer = function(objHTML){
 /*Trip Manager*/
 
 var TripManager = function(){
-	this.position;
-	this.speed;
-	this.direction;
-	this.nodeTripCollection = new Array();
+	
+	this.position;																		//	The position in the Trip
+	this.speed;																			// Speed of traveling
+	this.direction;																	// The next stop in the trip
+	this.nodeTripCollection = new Array();										// Collection of positions to visit
+	this.nodeTripIndex;																// Index of actual position
+	this.nodeResultCollection = new Array();									// Collection of positions for showing
 	
 	/* newTrip : Resets the trip and creates one with the postion given */
 	
-	this
+	this.newTrip = function(position){	
+		this.position = position;
+		this.nodeTripCollection = new Array( position );
+		this.nodeTripIndex = 0 ;		
+		this.direction = position;
+		this.speed = 0;
+	}	
 	
+	/* addNextNode : Adds another position to the trip*/	
+	
+	this.addNextNode = function(position){
+		this.nodeTripCollection.push( position );	
+	}	
+	
+	/* deleteLastNode : Deletes end position of trip or stays the same*/	
+	
+	this.deleteLastNode = function(position){
+		if(this.nodeTripCollection.length > 1 ){
+			this.nodeTripCollection.pop();
+		}		
+	}		
+	
+	/*	clearFollowingTrip : Deletes all the incoming trip positions*/
+	
+	this.clearFollowingTrip = function(){
+		while( this.nodeTripCollection.length - 1 > this.nodeTripIndex ){
+				this.nodeTripCollection.pop();
+		}		
+	}	
+	
+	/* skipForward : Jumps to the next position if any*/
+	
+	this.skipForward = function(){
+		if( this.nodeTripIndex < this.nodeTripCollection-1  ){
+			this.nodeTripIndex ++ ;
+		}			
+	}
+		
+	/* skipBackward : Jumps to the past position if any*/
+
+	this.skipBackward = function(){
+		if( this.nodeTripIndex > 0 ){
+			this.nodeTripIndex -- ;
+		}			
+	}	
+	
+	/* searchArtist : Uses A DataManager Obj to retrieve artist info*/
+	
+	this.searchArtist = function(artist){
+		var dataManager = new DataManager();
+		dataManager.getArtist(artist,this.artistResult.bind(this));
+	}	
+	
+	/* artistResult : Manages the results from searchArtist function*/
+	
+	this.artistResult = function(artistResultArray){
+		nodeResultCollection = new Array();          //Reset Array
+		
+		artistResultArray.forEach(function(element,index,array){ 
+			var tempPosition = new Position(
+				element.name+" "+ element.origin,		//Position Name
+				element.latlng.lat(),						//Latitude
+				element.latlng.lng(),						//Longtude
+				element);										//Artist Object
+			
+			nodeResultCollection.push(tempPosition);  //Push Object
+		},this);		
+	}	
+	
+	/* renderTrip : Draws in a google.maps.map the trip*/
+	
+	this.renderTrip= function(){
+	
+	}
+	
+	/* renderResult :  Draws in a google.maps.map the search results */
+	
+	this.renderResult	= function(){
+			
+	}	
 }
 
 
