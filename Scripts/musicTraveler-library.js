@@ -338,7 +338,7 @@ var MusicPlayer = function(objHTML){
 
 /*Trip Manager*/
 
-var TripManager = function(){
+var TripManager = function(objHTML){
 	
 	this.position;																		//	The position in the Trip
 	this.speed;																			// Speed of traveling
@@ -346,6 +346,7 @@ var TripManager = function(){
 	this.nodeTripCollection = new Array();										// Collection of positions to visit
 	this.nodeTripIndex;																// Index of actual position
 	this.nodeResultCollection = new Array();									// Collection of positions for showing
+	this.objHTML = objHTML;															// Object HTML TO Draw In
 	
 	/* newTrip : Resets the trip and creates one with the postion given */
 	
