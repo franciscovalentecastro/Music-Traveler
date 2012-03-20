@@ -38,7 +38,7 @@ function NewTrip(){
 	navigator.geolocation.getCurrentPosition(function(position) {  
 		tripManager.newTrip( new Position("My Position",position.coords.latitude,position.coords.longitude)  );
 	} ,function(error){
-		tripManager.newTrip( new Position("My Position",26.6483739373832, -20.56693749999999 )  );
+		tripManager.newTrip( new Position("My Position",21.123619, -101.680496 )  );
 	});  
 }
 

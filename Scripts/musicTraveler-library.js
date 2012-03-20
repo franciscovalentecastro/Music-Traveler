@@ -21,6 +21,7 @@ var Artist = function( name, origin,latlng,genre ){
 	}
 }
 
+
 /*Song Object*/
 
 var Song = function(title,artist,description,multimediaLink,sourceType){
@@ -391,7 +392,7 @@ var TripManager = function(){
 	/* skipForward : Jumps to the next position if any*/
 	
 	this.skipForward = function(){
-		if( this.nodeTripIndex < this.nodeTripCollection-1  ){
+		if( this.nodeTripIndex < this.nodeTripCollection.length -1  ){
 			this.nodeTripIndex ++ ;
 		}	
 
@@ -451,11 +452,12 @@ var TripManager = function(){
 /* MapRenderer */
 
 var MapRenderer = function(objHTML,mapOptions){
-	this.objHTML = objHTML;											//ObjHtml Div where the map will be drawn
+	this.objHTML = objHTML;														//ObjHtml Div where the map will be drawn
 	this.googleMap = new google.maps.Map(objHTML,mapOptions);		// Map Object For Rendering
-	this.resultMarkerCollection = new Array();  					// Array of search result markers
-	this.tripMarkerCollection = new Array();         		    	// Array of trip Markers
-	this.tripMarkerIndex = 0; 										// Index where the trip is positioned
+	this.resultMarkerCollection = new Array();  							// Array of search result markers
+	this.tripMarkerCollection = new Array();         		    		// Array of trip Markers
+	this.tripMarkerIndex = 0; 													// Index where the trip is positioned
+	this.tripRouteCollection = new Array()	;								// Array COntaining Route Object for the trip
 	
 	/* initMap : INitializes or Resets Map Object for rendering */
 	
@@ -467,11 +469,16 @@ var MapRenderer = function(objHTML,mapOptions){
 	/* renderTrip : Draws in a google.maps.map the trip*/
 	
 	this.renderTrip = function( tripArray ,tripIndex ){
+
+		//Set Index Of TRip
+		this.tripMarkerIndex = tripIndex; 				
+		
 		
 		while(tripArray.length < this.tripMarkerCollection.length){ 		// Manage delete Last Node
 				this.tripMarkerCollection[ this.tripMarkerCollection.length-1 ] .setMap(null);
 				this.tripMarkerCollection.pop();
 		}
+		
 		// Create Markers
 		tripArray.forEach( function(element,index,array){
 				if( element.latlng!=="undefined"  && this.tripMarkerCollection.findByProperty( "title" , element.name ) == -1 ){
@@ -492,6 +499,23 @@ var MapRenderer = function(objHTML,mapOptions){
 														this.onTripClick.bind(markerArray[ markerArray.length-1 ]) );		//Event Listener
 				}			
 			}.bind(this) );
+		
+		// Create Routes
+		if( this.tripMarkerIndex < this.tripRouteCollection.length ){
+			while( this.tripMarkerIndex < this.tripRoutCollection.length ){							//Delete Routes When there are more
+					this.tripRoutCollection[ this.tripRoutCollection.length -1 ].setMap(null);
+					this.tripRoutCollection.pop();
+			}					
+		}else{			
+			var indexOfMarker;
+			for(indexOfMarker = 0 ; indexOfMarker < this.tripMarkerIndex ; indexOfMarker ++){
+				if( typeof this.tripRouteCollection[indexOfMarker] === "undefined"  ){
+								this.createRoute( this.tripMarkerCollection[ indexOfMarker ].position ,
+														this.tripMarkerCollection[ indexOfMarker + 1  ].position );
+				}	
+			}
+			
+		}				
 	}
 	
 	/* clearTrip : Clears the trip from the map */
@@ -534,6 +558,8 @@ var MapRenderer = function(objHTML,mapOptions){
 		this.resultMarkerCollection = new Array();
 	}
 	
+	/* Utilities */	
+	
 	this.onResultClick = function(event){
 		console.debug(this);
 		console.debug(event);
@@ -542,6 +568,43 @@ var MapRenderer = function(objHTML,mapOptions){
 	this.onTripClick = function(event){
 		console.debug(this);
 		console.debug(event);
+	}	
+	
+	this.createRoute = function(start,end){
+		var directionService = new google.maps.DirectionsService();	
+		var request = {
+			origin: start,
+			destination: end,
+			travelMode : google.maps.TravelMode.WALKING
+		};		
+		directionService.route(request,function(response,status){
+				
+				if(status === google.maps.DirectionsStatus.OK){			// If Results Obtained
+					var dirOpt = {
+						suppressMarkers : true
+					};										
+					
+					var directionRenderer = new google.maps.DirectionsRenderer(dirOpt);
+					directionRenderer.setMap( this.googleMap );
+					this.tripRouteCollection.push(directionRenderer);						
+										
+					this.tripRouteCollection[ this.tripRouteCollection.length -1 ].setDirections(response);					
+				}else{
+					
+					// Custom Polyline
+					var routeOpt = {
+						geodesic : true ,
+						path : [ response.gg.origin ,response.gg.destination ],
+						strokeColor : "blue",
+						strokeOpacity : .5,
+						strokeWeight : 2
+					}
+					
+					var route = new google.maps.Polyline(routeOpt);
+					route.setMap( this.googleMap);
+					this.tripRouteCollection.push(route);	
+				}
+		}.bind(this) );
 	}	
 }
 
@@ -555,6 +618,7 @@ Array.prototype.findByProperty = function(property,search){
 	}
 	return -1;
 }
+
 
 
 
