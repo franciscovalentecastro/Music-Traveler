@@ -1,8 +1,10 @@
+/* Music Traveler Layout */
+
 html{
 	width: 100%;
 	height: 100%;
 }
-body{
+body, #content{
 	width: 100%;
 	height: 100%;
 	min-width: 960px;
@@ -12,24 +14,45 @@ body{
 	position:relative
 }
 
-/*#musictraveler-app{
+body{
+	overflow: hidden;
+}
+
+#musictraveler-app{
 	width: 100%;
 	height: 100%;
-	min-width: 960px;
-	min-height: 600px;
 }
 
 #musictraveler-sidebar{
 	width:20%;
 	height: 100%;
-	min-height: 600px;
 	float:left;
 }
 
 
 #musictraveler-mapcanvas{
-	min-height: 600px;
 	height: 100%;
-	width: 80%;
-	display:inline-block;
-}*/
+	width: auto;
+	margin: 0;
+}
+
+/* Side Bar Styling */
+
+#musictraveler-sidebar ul{
+	
+	padding: 0;
+	list-style-type: none;
+}
+
+#musictraveler-sidebar li{
+	
+	width:100%;
+	font-weight:bold;
+	color:#FFFFFF;
+	background-color:#98bf21;
+	text-align:center;
+	text-decoration:none;
+	text-transform:uppercase;
+	
+	
+}

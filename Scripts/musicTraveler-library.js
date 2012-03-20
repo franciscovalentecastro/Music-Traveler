@@ -472,7 +472,7 @@ var MapRenderer = function(objHTML,mapOptions){
 				this.tripMarkerCollection[ this.tripMarkerCollection.length-1 ] .setMap(null);
 				this.tripMarkerCollection.pop();
 		}
-		
+		// Create Markers
 		tripArray.forEach( function(element,index,array){
 				if( element.latlng!=="undefined"  && this.tripMarkerCollection.findByProperty( "title" , element.name ) == -1 ){
 					var tempMarker = new google.maps.Marker( { title:element.name , 
@@ -483,8 +483,13 @@ var MapRenderer = function(objHTML,mapOptions){
 																					),
 																			  animation : google.maps.Animation.DROP
 																			  } );
-					this.tripMarkerCollection.push( tempMarker );
-					this.tripMarkerCollection[ this.tripMarkerCollection.length-1 ] .setMap(this.googleMap);				
+					var markerArray =	this.tripMarkerCollection;												  
+																			  
+					markerArray.push( tempMarker );
+					markerArray[ markerArray.length-1 ] .setMap(this.googleMap);				
+					
+					google.maps.event.addListener(markerArray[ markerArray.length-1 ],"click",
+														this.onTripClick.bind(markerArray[ markerArray.length-1 ]) );		//Event Listener
 				}			
 			}.bind(this) );
 	}
@@ -506,11 +511,15 @@ var MapRenderer = function(objHTML,mapOptions){
 	
 		resultArray.forEach( function(element,index,array){   //Create Results
 				if( element.latlng!=="undefined" ){
-					this.resultMarkerCollection.push(  new google.maps.Marker( { title:element.name , 			//Properties Of Markers
+					var markerArray = this.resultMarkerCollection;
+					markerArray.push(  new google.maps.Marker( { title:element.name , 			//Properties Of Markers
 																				 position : element.latlng,			
 																				 animation : google.maps.Animation.DROP
 																				} ) );
-					this.resultMarkerCollection[ this.resultMarkerCollection.length-1 ].setMap( this.googleMap );				
+					markerArray[ markerArray.length-1 ].setMap( this.googleMap );				
+					
+					google.maps.event.addListener(markerArray[ markerArray.length-1 ],"click",
+																		this.onResultClick.bind(markerArray[ markerArray.length-1 ]) );		//Event Listener			
 				}			
 		}.bind(this) );	
 	}	
@@ -525,6 +534,15 @@ var MapRenderer = function(objHTML,mapOptions){
 		this.resultMarkerCollection = new Array();
 	}
 	
+	this.onResultClick = function(event){
+		console.debug(this);
+		console.debug(event);
+	}	
+	
+	this.onTripClick = function(event){
+		console.debug(this);
+		console.debug(event);
+	}	
 }
 
 /* Added Functions to Javascript*/
