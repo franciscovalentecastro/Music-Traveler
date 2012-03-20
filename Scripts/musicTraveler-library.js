@@ -163,21 +163,23 @@ var DataManager = function(){
 			for(ind in jsonRes){																	//Loop Create Song Objects From Results
 			
 				var result = jsonRes[ind];
-				var link =  (typeof result.media$group.media$content) == "undefined" ? "undefined" : result.media$group.media$content[0].url;
-				link = youtubeVideoId(link);
+				if(typeof result === "object"){
+					var link =  (typeof result.media$group.media$content) == "undefined" ? "undefined" : result.media$group.media$content[0].url;
+					link = youtubeVideoId(link);
 				
-				var songContent = result["content"]["$t"];
-				var songTitle = result["title"]["$t"];
+					var songContent = result["content"]["$t"];
+					var songTitle = result["title"]["$t"];
 				
-				tmpSong = new Song(																//New Song Object
-					 songTitle,
-					 songTitle ,
-					 songContent ,
-					 link,
-					 "youtube"
-				);				
+					tmpSong = new Song(																//New Song Object
+						 songTitle,
+					 	songTitle ,
+					 	songContent ,
+					 	link,
+					 	"youtube"
+					);				
 				
-				SongResultArray.push( tmpSong );
+					SongResultArray.push( tmpSong );
+				}			
 			}
 			
 			callbackFunction(SongResultArray);												//CallBack
@@ -228,11 +230,15 @@ var MusicPlayer = function(objHTML){
 										this.status ="paused";  
 									}.bind(this) , // after the pause method is called
 									onStop: function(){   
-										this.status ="stoped";  
+										this.status ="stopped"; 
 									}.bind(this) , // after the player is stopped
 									onSeek: function(time){}, // after the video has been seeked to a defined point
 									onMute: function(){}, // after the player is muted
-									onUnMute: function(){} // after the player is unmuted
+									onUnMute: function(){}, // after the player is unmuted
+									onPlayerEnded: function(){
+										this.status ="stopped"; 
+										this.onSongEnd();
+									}.bind(this)	 // after The Video Ends							
 								});	
 	
 	/* newPlaylist : creates a playlist from an artist name*/
@@ -240,6 +246,8 @@ var MusicPlayer = function(objHTML){
 	this.newPlaylist = function(artist,source){						
 		
 		this.status="loading";												//Set Status		
+		
+		this.playlist = new Array();                             // Restart Playlist		
 		
 		dataManager = new DataManager();		
 		switch(source){														//Source of the playlist & player that will be used
@@ -257,6 +265,8 @@ var MusicPlayer = function(objHTML){
 	this.playlistResult = function(songResultArray){		
 		this.playlist = this.playlist.concat(songResultArray);					
 		this.status="ready";										    		//Set Status	
+		
+		this.onPlaylistLoad();													// Event When Ready
 	}	
 	
 	/* play : plays current song or plays song with given index*/
@@ -267,7 +277,7 @@ var MusicPlayer = function(objHTML){
 			playlistSongIndex = this.playlistSongIndex;
 		}			
 				
-		if(this.status  == "ready" || this.status  == "paused" || this.status  == "playing" || this.status  == "stoped"){ //Check Player Status
+		if(this.status  == "ready" || this.status  == "paused" || this.status  == "playing" || this.status  == "stopped"){ //Check Player Status
 		
 			if( typeof this.playlist[  playlistSongIndex ] !== "undefined"  ){	 //Check if song number exists
 				
@@ -335,6 +345,17 @@ var MusicPlayer = function(objHTML){
 		$(objHTML).hide();	
 	}
 	
+	/* onPlaylistLoad : Event when playlist load */	
+	
+	this.onPlaylistLoad = function(){
+			
+	}
+	
+	/* onSongStop : Event when song Stops */	
+	
+	this.onSongEnd = function(){
+			
+	}		
 }
 
 /*Trip Manager*/

@@ -14,7 +14,6 @@ var initialize = function(){
 	
 	//Initialize Music Player
 	musicPlayer = new MusicPlayer( document.getElementById("youtube-player-container") );
-	musicPlayer.hideVideo();
 	
 	//Bind FrontEnd With Functions
 	document.getElementById("musictraveler-submitsearch").onclick = function() { 
@@ -25,9 +24,24 @@ var initialize = function(){
 					NewTrip();
 		} ;
 		
+	document.getElementById("musictraveler-starttrip").onclick = function() { 
+					StartTrip();
+		} ;
+		
+	document.getElementById("musictraveler-skip").onclick = function() { 
+					Skip();
+		} ;
+		
 	tripManager.mapRenderer.onResultClick = ResultClickEvent ;
 	
 	tripManager.mapRenderer.onTripClick = TripClickEvent ;
+	
+	musicPlayer.onPlaylistLoad = PlaylistLoad;
+	musicPlayer.onSongEnd = SongEnd;
+	
+	// Initialize App
+	
+	NewTrip();
 }
 
 function Search(query){
@@ -42,6 +56,24 @@ function NewTrip(){
 	});  
 }
 
+function StartTrip(){
+	if( tripManager.nodeTripCollection[ tripManager.nodeTripIndex ].name == "My Position" ){
+		tripManager.skipForward();
+	}
+
+		var positionObj = tripManager.nodeTripCollection[ tripManager.nodeTripIndex ];
+	 
+	musicPlayer.newPlaylist( positionObj.artist.name  ,"youtube");		
+
+}
+
+function Skip(){
+	tripManager.skipForward();
+	var positionObj = tripManager.nodeTripCollection[ tripManager.nodeTripIndex ];
+	
+	musicPlayer.newPlaylist( positionObj.artist.name  ,"youtube");
+}
+
 var ResultClickEvent =function (event){
 	var index = tripManager.mapRenderer.resultMarkerCollection.indexOf(this);
 	var posObj = tripManager.nodeResultCollection[index];
@@ -52,6 +84,13 @@ var ResultClickEvent =function (event){
 var TripClickEvent = function (event){
 	var index = tripManager.mapRenderer.resultMarkerCollection.indexOf(this);
 	var posObj = tripManager.nodeResultCollection[index];
-	
-	
+
+}
+
+var PlaylistLoad = function(){
+	musicPlayer.play(0);
+}
+
+var SongEnd = function(){
+	Skip();	
 }
