@@ -22,39 +22,54 @@
 			<div id="musictraveler-app">
 				
 				<div id="musictraveler-sidebar">
-					<ul>
-						<li>
-							<h1> Music Traveler </h1>
-						</li>
-					
-						<li>
-							<label> Search Artist: </label> <input type="text" id="musictraveler-inputsearch" >
-							<button type="submit" id="musictraveler-submitsearch"> Buscar </button>
-						</li>
+				
+					<div class="sidebar-content">
 						
-						<li>
-							<label> Multimedia Player </label>
-							<div id="musictraveler-multimedia">
-								<div id='youtube-player-container'> </div>
-								<button name="Play" id="play"> Play</button>
-								<button name="Pause" id="play"> Pause</button>
-								
-								<select>
-									<option value="0">Song Select</option>
-								</select>
-							</div>
+						<div class="sidebar-arrow">
+							<img src="Images/musictraveler-arrow.png" alt="" >
+						</div>						
+						
+						<ul>
+							<li class="sidebar-header" >
+								<a href="#" >
+									<img src="Images/musictraveler-header.png" alt="Music Traveler" >
+								</a>
+							</li>
+						
+							<li>
+								<label> Search Artist: </label> <input type="text" id="musictraveler-inputsearch" >
+								<button type="submit" id="musictraveler-submitsearch"> Buscar </button>
+							</li>
 							
-						</li>
-						<li id="musictraveler-starttrip">Start Trip</li>
-						<li id="musictraveler-newtrip">New Trip</li>		
-						<li id="musictraveler-skip"> Skip </li>
-						<li>Info</li>		
-						<li>Random</li>	
+							<li>
+								<label> Multimedia Player </label>
+								<div id="musictraveler-multimedia">
+									<div id='youtube-player-container'> </div>
+									<button name="Play" id="play"> Play</button>
+									<button name="Pause" id="play"> Pause</button>
+									
+									<select>
+										<option value="0">Song Select</option>
+									</select>
+								</div>
+								
+							</li>
+							<li id="musictraveler-starttrip">Start Trip</li>
+							<li id="musictraveler-newtrip">New Trip</li>		
+							<li id="musictraveler-skip"> Skip </li>
+							<li>Info</li>		
+							<li>Random</li>	
+							
+							
+						</ul>					
+					</div>
+					
+					<div class="sidebar-infobar">
 						
-						
-					</ul>					
+					</div>
 					
 				</div>
+				
 
 				<div id="musictraveler-mapcanvas">
 					

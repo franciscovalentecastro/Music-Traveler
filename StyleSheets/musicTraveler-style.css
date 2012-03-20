@@ -38,21 +38,55 @@ body{
 
 /* Side Bar Styling */
 
+.sidebar-header img{
+	width: 15em;
+}
+
 #musictraveler-sidebar ul{
-	
+	margin:0;
 	padding: 0;
 	list-style-type: none;
 }
 
 #musictraveler-sidebar li{
+	border-bottom: 1px solid gray;	
 	
 	width:100%;
 	font-weight:bold;
 	color:#FFFFFF;
-	background-color:#98bf21;
 	text-align:center;
 	text-decoration:none;
 	text-transform:uppercase;
 	
 	
+}
+
+.sidebar-content{
+	width:97%;
+	height:100%;
+	float: left;
+	background: url(http://fc02.deviantart.net/fs70/f/2011/096/1/a/ios_linen_texture___black_by_vegardhw-d3ddll5.png);
+	position:relative;
+	z-index: 11;
+	
+	border-right: 1px solid black;		
+}
+
+.sidebar-infobar{
+	width:auto;
+	height:100%;
+	background-color: yellow;
+	position:relative;
+	z-index: 10;
+	
+	/*Shadow */
+	-moz-box-shadow:    3px 3px 5px 6px #ccc;
+  -webkit-box-shadow: 3px 3px 5px 6px #ccc;
+  box-shadow:         3px 3px 5px 6px #ccc;
+}
+
+.sidebar-arrow{
+	position: absolute;
+	right:-1px;
+	top:30px;
 }

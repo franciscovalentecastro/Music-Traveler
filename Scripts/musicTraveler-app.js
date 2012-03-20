@@ -32,11 +32,20 @@ var initialize = function(){
 					Skip();
 		} ;
 		
+	document.getElementsByClassName("sidebar-arrow")[0].onclick = function() { 
+					CloseSideBar();
+		} ;
+	
+	document.getElementsByClassName("sidebar-infobar")[0].onclick = function() { 
+					OpenSideBar();
+		} ;
+		
 	tripManager.mapRenderer.onResultClick = ResultClickEvent ;
 	
 	tripManager.mapRenderer.onTripClick = TripClickEvent ;
 	
 	musicPlayer.onPlaylistLoad = PlaylistLoad;
+	
 	musicPlayer.onSongEnd = SongEnd;
 	
 	// Initialize App
@@ -93,4 +102,17 @@ var PlaylistLoad = function(){
 
 var SongEnd = function(){
 	Skip();	
+}
+
+var CloseSideBar = function(){
+	$(".sidebar-content").animate({width: 'toggle'}); 
+	$("#musictraveler-sidebar").animate({ width: '.7%' });
+}
+
+var OpenSideBar = function(){
+	
+	if( $(".sidebar-content").css("display") == "none" ){
+		$("#musictraveler-sidebar").animate({ width: '20%' });
+		$(".sidebar-content").animate({width: 'toggle'}); 
+	}
 }

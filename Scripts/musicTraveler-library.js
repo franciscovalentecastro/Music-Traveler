@@ -218,8 +218,8 @@ var MusicPlayer = function(objHTML){
 	/*Initialize Youtube Player*/	
 	
 	this.youtubePlayer = $(objHTML).tubeplayer({																//Youtube Player
-									width: 250, // the width of the player
-									height: 250, // the height of the player
+									width: 200, // the width of the player
+									height: 200, // the height of the player
 									allowFullScreen: "true", // true by default, allow user to go full screen
 									preferredQuality: "default",// preferred quality: default, small, medium, large, hd720
 									onPlay: function(id){ 
