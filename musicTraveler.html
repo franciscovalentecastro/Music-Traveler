@@ -3,10 +3,9 @@
 <html>
 	<head>
 		
-		<title>Outside The Box</title>
+		<title>Music Traveler</title>
 		<meta charset="utf-8" />
 		
-		<link type="text/css" rel="stylesheet" href="StyleSheets/global-style.css" >
 		<link type="text/css" rel="stylesheet" href="StyleSheets/musicTraveler-style.css">
 		
 		<script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false" ></script>		
@@ -18,53 +17,39 @@
 	</head>
 	
 	<body>
-		<div id="header"> 
-			<div id="header-global"> 
-				<a href="http://outsidethebox.comyr.com/" >
-					<img src="outsidethebox-header.png" alt="OutSide The Box" >			
-				</a>			
-			</div>
-			
-			<div id="header-navbar">
-				<ul>				
-					<li> <a href="http://outsidethebox.comyr.com/" > Outside The Box </a> </li>
-					<li> <a href="http://outsidethebox.comyr.com/" > Music </a> </li>
-					<li> <a href="http://outsidethebox.comyr.com/Projects/" > Projects </a> </li>
-					<li> <a href="http://outsidethebox.comyr.com/" > Blog </a> </li>
-					<li> <a href="http://outsidethebox.comyr.com/" > About Me </a> </li>			
-				</ul>		
-			</div>		
-			
-		</div>		
-		
 		<div id="content">
 			
 			<div id="musictraveler-app">
 				
 				<div id="musictraveler-sidebar">
 					<ul>
-						<li>New Trip</li>		
-						<li>Suggest</li>		
-						<li>Random</li>	
-						<li>Advanced Search</li>
-						<li>Reset</li>
 						<li>
-							<label> Latitude </label> <input type="text" id="lat" >
-							<label> Longitude </label> <input type="text"id="lng" >
-							<input type="submit" id="submit">
+							<h1> Music Traveler </h1>
+						</li>
+					
+						<li>
+							<label> Search Artist: </label> <input type="text" id="musictraveler-inputsearch" >
+							<button type="submit" id="musictraveler-submitsearch"> Buscar </button>
 						</li>
 						
 						<li>
-							<label> Search String </label> <input type="text" id="search" >
-							<input type="submit" id="submit-query">
-						</li>
-						<li>
+							<label> Multimedia Player </label>
 							<div id="musictraveler-multimedia">
 								<div id='youtube-player-container'> </div>
 								<button name="Play" id="play"> Play</button>
+								<button name="Pause" id="play"> Pause</button>
+								
+								<select>
+									<option value="0">Song Select</option>
+								</select>
 							</div>
 							
 						</li>
+						<li id="musictraveler-newtrip">New Trip</li>		
+						<li>Info</li>		
+						<li>Random</li>	
+						<li>New Trip</li>
+						
 						
 					</ul>					
 					
@@ -73,15 +58,11 @@
 				<div id="musictraveler-mapcanvas">
 					
 				</div>				
-				
-				<div id="musictraveler-toolbox">
-					
-				</div>
+			
 			</div>
 					
 		</div>		
 		
-		<div id="footer">	</div>
 		
 	</body>
 	

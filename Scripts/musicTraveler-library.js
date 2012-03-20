@@ -94,12 +94,12 @@ var DataManager = function(){
 					
 					originObj= jsonRes[ind].origin;
 					
-					if( originObj === null	){		//Check Availavility of origin
+					if( typeof originObj === "undefined" || originObj === null	){		//Check Availavility of origin
 						tmpOrigin = "undefined";
 						tmpGeolocation = "undefined";
 					}else{
 						tmpOrigin = originObj.name;
-						if( originObj.geolocation === null){
+						if( typeof originObj.geolocation === "undefined" || originObj.geolocation === null ){
 							tmpGeolocation = "undefined";
 						}else{
 							tmpGeolocation = new google.maps.LatLng(originObj.geolocation.latitude,
@@ -111,7 +111,7 @@ var DataManager = function(){
 						jsonRes[ind].name, 																				//Name	
 						tmpOrigin , 																						//Origin Place Name
 						tmpGeolocation,																					//Latitude Longitude
-						jsonRes[ind].genre === null ? 
+						jsonRes[ind].genre === null || typeof jsonRes[ind].genre === "undefined" ? 
 							"undefined" : jsonRes[ind].genre.name           									//Genre Name
 			      );																				
 							
@@ -340,14 +340,14 @@ var MusicPlayer = function(objHTML){
 
 var TripManager = function(){
 	
-	this.position;																		//	The position in the Trip
-	this.speed;																			// Speed of traveling
-	this.direction;																	// The next stop in the trip
-	this.nodeTripCollection = new Array();										// Collection of positions to visit
-	this.nodeTripIndex;																// Index of actual position
-	this.nodeResultCollection = new Array();									// Collection of positions for showing
-	this.objHTML;																		// Object HTML TO Draw In
-	this.googleMap;																	// Map Object For Rendering
+	this.position;																				//	The position in the Trip
+	this.speed;																					// Speed of traveling
+	this.direction;																				// The next stop in the trip
+	this.nodeTripCollection = new Array();														// Collection of positions to visit
+	this.nodeTripIndex;																			// Index of actual position
+	this.nodeResultCollection = new Array();													// Collection of positions for showing
+	this.objHTML ;																				// Object HTML TO Draw In
+	this.mapRenderer ; 																			// MapRenderer Object for Drawing map 
 	
 	/* newTrip : Resets the trip and creates one with the postion given */
 	
@@ -357,12 +357,15 @@ var TripManager = function(){
 		this.nodeTripIndex = 0 ;		
 		this.direction = position;
 		this.speed = 0;
+		
+		this.mapRenderer.renderTrip(this.nodeTripCollection,this.nodeTripIndex);			//Rendering
 	}	
 	
 	/* addNextNode : Adds another position to the trip*/	
 	
 	this.addNextNode = function(position){
 		this.nodeTripCollection.push( position );	
+		this.mapRenderer.renderTrip(this.nodeTripCollection,this.nodeTripIndex);			//Rendering
 	}	
 	
 	/* deleteLastNode : Deletes end position of trip or stays the same*/	
@@ -371,6 +374,8 @@ var TripManager = function(){
 		if(this.nodeTripCollection.length > 1 ){
 			this.nodeTripCollection.pop();
 		}		
+		
+		this.mapRenderer.renderTrip(this.nodeTripCollection,this.nodeTripIndex);			//Rendering
 	}		
 	
 	/*	clearFollowingTrip : Deletes all the incoming trip positions*/
@@ -378,7 +383,9 @@ var TripManager = function(){
 	this.clearFollowingTrip = function(){
 		while( this.nodeTripCollection.length - 1 > this.nodeTripIndex ){
 				this.nodeTripCollection.pop();
-		}		
+		}	
+
+		this.mapRenderer.renderTrip(this.nodeTripCollection,this.nodeTripIndex);			//Rendering		
 	}	
 	
 	/* skipForward : Jumps to the next position if any*/
@@ -386,7 +393,9 @@ var TripManager = function(){
 	this.skipForward = function(){
 		if( this.nodeTripIndex < this.nodeTripCollection-1  ){
 			this.nodeTripIndex ++ ;
-		}			
+		}	
+
+		this.mapRenderer.renderTrip(this.nodeTripCollection,this.nodeTripIndex);			//Rendering
 	}
 		
 	/* skipBackward : Jumps to the past position if any*/
@@ -394,7 +403,9 @@ var TripManager = function(){
 	this.skipBackward = function(){
 		if( this.nodeTripIndex > 0 ){
 			this.nodeTripIndex -- ;
-		}			
+		}	
+		
+		this.mapRenderer.renderTrip(this.nodeTripCollection,this.nodeTripIndex);			//Rendering
 	}	
 	
 	/* searchArtist : Uses A DataManager Obj to retrieve artist info*/
@@ -423,8 +434,29 @@ var TripManager = function(){
 			
 			this.nodeResultCollection.push(tempPosition);   //Push Object
 		},this);		
+		
+		// Rendering
+		this.mapRenderer.clearResult();
+		this.mapRenderer.renderResult( this.nodeResultCollection );
+	}
+	
+	/* initRender : initializes the render object */
+	
+	this.initRender = function(objHTML,mapOptions){
+		this.mapRenderer = new MapRenderer(objHTML,mapOptions);
 	}
 		
+}
+
+/* MapRenderer */
+
+var MapRenderer = function(objHTML,mapOptions){
+	this.objHTML = objHTML;											//ObjHtml Div where the map will be drawn
+	this.googleMap = new google.maps.Map(objHTML,mapOptions);		// Map Object For Rendering
+	this.resultMarkerCollection = new Array();  					// Array of search result markers
+	this.tripMarkerCollection = new Array();         		    	// Array of trip Markers
+	this.tripMarkerIndex = 0; 										// Index where the trip is positioned
+	
 	/* initMap : INitializes or Resets Map Object for rendering */
 	
 	this.initMap = function(objHTML,mapOptions){
@@ -434,26 +466,76 @@ var TripManager = function(){
 	
 	/* renderTrip : Draws in a google.maps.map the trip*/
 	
-	this.renderTrip= function(){
-		this.nodeResultCollection.forEach( function(element,index,array){
-				if( element.latlng!=="undefined" ){
-					element.marker = new google.maps.Marker( { title:element.name , position : element.latlng} );
-					element.marker.setMap(this.googleMap);				
+	this.renderTrip = function( tripArray ,tripIndex ){
+		
+		while(tripArray.length < this.tripMarkerCollection.length){ 		// Manage delete Last Node
+				this.tripMarkerCollection[ this.tripMarkerCollection.length-1 ] .setMap(null);
+				this.tripMarkerCollection.pop();
+		}
+		
+		tripArray.forEach( function(element,index,array){
+				if( element.latlng!=="undefined"  && this.tripMarkerCollection.findByProperty( "title" , element.name ) == -1 ){
+					var tempMarker = new google.maps.Marker( { title:element.name , 
+																			  position : element.latlng ,
+																			  icon : new google.maps.MarkerImage(
+																					"http://www.iconspedia.com/dload.php?up_id=109901",
+																					null,null,null,new google.maps.Size(40, 40)
+																					),
+																			  animation : google.maps.Animation.DROP
+																			  } );
+					this.tripMarkerCollection.push( tempMarker );
+					this.tripMarkerCollection[ this.tripMarkerCollection.length-1 ] .setMap(this.googleMap);				
 				}			
 			}.bind(this) );
 	}
 	
+	/* clearTrip : Clears the trip from the map */
+	
+	this.clearTrip = function(){
+		this.tripMarkerCollection.forEach( function(element,index,array){
+					element.setMap( null );							
+		}.bind(this) );	
+		
+		this.tripMarkerCollection = new Array();
+		this.tripMarkerIndex = 0;
+	}
+	
 	/* renderResult :  Draws in a google.maps.map the search results */
 	
-	this.renderResult	= function(){
-		
-		this.nodeResultCollection.forEach( function(element,index,array){
+	this.renderResult	= function(resultArray){
+	
+		resultArray.forEach( function(element,index,array){   //Create Results
 				if( element.latlng!=="undefined" ){
-					element.marker = new google.maps.Marker( { title:element.name , position : element.latlng} );
-					element.marker.setMap(this.googleMap);				
+					this.resultMarkerCollection.push(  new google.maps.Marker( { title:element.name , 			//Properties Of Markers
+																				 position : element.latlng,			
+																				 animation : google.maps.Animation.DROP
+																				} ) );
+					this.resultMarkerCollection[ this.resultMarkerCollection.length-1 ].setMap( this.googleMap );				
 				}			
-			}.bind(this) );	
+		}.bind(this) );	
 	}	
+	
+	/* clearResult : Clears all the results from the map */
+	
+	this.clearResult = function(){
+		this.resultMarkerCollection.forEach( function(element,index,array){
+					element.setMap( null );							
+		}.bind(this) );	
+		
+		this.resultMarkerCollection = new Array();
+	}
+	
+}
+
+/* Added Functions to Javascript*/
+
+Array.prototype.findByProperty = function(property,search){
+	for(var i=0;i<this.length;i++){
+		if( this[i][property] == search ){
+			return i;
+		}
+	}
+	return -1;
 }
 
 
