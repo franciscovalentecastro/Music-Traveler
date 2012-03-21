@@ -291,7 +291,11 @@ var MusicPlayer = function(objHTML){
 						switch(this.status){
 							case "ready":							
 								$(objHTML).tubeplayer("play", songObj.multimediaLink );		
-								break;							
+								break;
+							
+							case "stopped":							
+								$(objHTML).tubeplayer("play", songObj.multimediaLink );		
+								break;								
 								
 							case "paused":
 								$(objHTML).tubeplayer("play");

@@ -40,6 +40,14 @@ var initialize = function(){
 					OpenSideBar();
 		} ;
 		
+	$(".sidebar-expando-opened .sidebar-expando-header").click(function(){
+		ToggleExpando( this.parentNode );
+	});
+	
+	$(".sidebar-expando-closed .sidebar-expando-header").click(function(){
+		ToggleExpando( this.parentNode );
+	});
+		
 	tripManager.mapRenderer.onResultClick = ResultClickEvent ;
 	
 	tripManager.mapRenderer.onTripClick = TripClickEvent ;
@@ -48,9 +56,12 @@ var initialize = function(){
 	
 	musicPlayer.onSongEnd = SongEnd;
 	
+	$(".musictraveler-playlist label").click( PlaylistSongClick );
+	
 	// Initialize App
 	
 	NewTrip();
+	ToggleExpando( $(".sidebar-expando-opened") );
 }
 
 function Search(query){
@@ -96,12 +107,34 @@ var TripClickEvent = function (event){
 
 }
 
-var PlaylistLoad = function(){
+var PlaylistLoad = function(){	
+	CreatePlaylist();	
+	
 	musicPlayer.play(0);
 }
 
 var SongEnd = function(){
-	Skip();	
+	var temp= checkNextSong();
+	if( temp ==-1 ){
+		Skip();	
+	}else{
+		musicPlayer.play(  temp );
+	}
+}
+
+function checkNextSong(){
+	// Check If Theres SOng In list	
+	var playlistNodes =	document.getElementsByClassName("musictraveler-playlist")[0].childNodes;
+	var tempNode;	
+	var inputNode;
+	for(var i=0 ;i<playlistNodes.length ; i++){
+			tempNode= playlistNodes[i];
+			inputNode =tempNode.getElementsByTagName("input")[0];
+			if( inputNode.checked && parseInt(inputNode.value) > musicPlayer.playlistSongIndex ){
+				return parseInt(inputNode.value);
+			}
+	}	
+	return -1;
 }
 
 var CloseSideBar = function(){
@@ -115,4 +148,46 @@ var OpenSideBar = function(){
 		$("#musictraveler-sidebar").animate({ width: '20%' });
 		$(".sidebar-content").animate({width: 'toggle'}); 
 	}
+}
+
+var CreatePlaylist = function(){
+	// Create Playlist List
+	var olNode = document.getElementsByClassName("musictraveler-playlist")[0];
+
+	while( olNode.hasChildNodes() ){
+		olNode.removeChild( olNode.firstChild );	
+	}	
+
+	musicPlayer.playlist.forEach(function(element,index,array){
+		var listNode = document.createElement("li");
+		var labelNode = document.createElement("label");
+		var inputNode = document.createElement("input");
+		
+		//Label Set
+		labelNode.textContent = element.title;
+		
+		//InpuNode set
+		inputNode.setAttribute("type","checkbox");
+		inputNode.setAttribute("value",index);
+		
+		listNode.appendChild(labelNode);
+		listNode.appendChild(inputNode);		
+		
+		olNode.appendChild( listNode );		
+		
+	}.bind(this));	
+	
+	$(".musictraveler-playlist label").click( PlaylistSongClick );
+}
+
+var ToggleExpando = function(element){
+	$(element).toggleClass("sidebar-expando-closed");
+	$(element).toggleClass("sidebar-expando-opened");
+	
+	$(element).children("div , ol, label").slideToggle();	
+}
+
+var PlaylistSongClick = function(){
+		var inputNode =this.parentNode.getElementsByTagName("input")[0];
+		musicPlayer.play( parseInt(inputNode.value)  );		
 }

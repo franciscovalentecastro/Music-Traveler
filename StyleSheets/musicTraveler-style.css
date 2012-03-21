@@ -70,6 +70,13 @@ body{
 	z-index: 11;
 	
 	border-right: 1px solid black;		
+	
+	overflow-x: hidden;
+	overflow-y: auto;
+	
+}
+
+.sidebar-content li{
 }
 
 .sidebar-infobar{
@@ -83,10 +90,43 @@ body{
 	-moz-box-shadow:    3px 3px 5px 6px #ccc;
   -webkit-box-shadow: 3px 3px 5px 6px #ccc;
   box-shadow:         3px 3px 5px 6px #ccc;
+  
+  cursor:pointer;
 }
 
 .sidebar-arrow{
 	position: absolute;
 	right:-1px;
 	top:30px;
+	cursor:pointer;
+}
+
+.sidebar-expando-opened{
+	cursor:pointer;
+	background:url( http://webremix.org/labs/lab2/demos/minus.png ) no-repeat left top;
+}
+
+.sidebar-expando-closed{
+	cursor:pointer;
+	background:url( http://webremix.org/labs/lab2/demos/plus.png ) no-repeat left top;
+}
+
+.musictraveler-playlist{
+	list-style-type: none;
+	padding:0;
+}
+
+.musictraveler-playlist li{
+	font-size: .7em;
+	text-align: center;
+	display: block;
+	padding:0;
+	height: 30px;
+}
+
+.musictraveler-playlist label{
+	display: block;
+	width:80%;
+	float:left;
+	cursor: pointer;
 }
